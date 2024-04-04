@@ -1,3 +1,6 @@
+library(dplyr)
+library(tidyr)
+
 # clean WHO data
 get_country_data <- function(df,country,level){
   # select only data for USA

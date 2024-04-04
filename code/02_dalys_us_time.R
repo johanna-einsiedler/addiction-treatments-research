@@ -2,7 +2,10 @@ library(ggplot)
 library(readxl)
 library(ggpubr)
 library(scales)
-
+library(dplyr)
+library(ggrepel)
+library(ggtext)
+library(stringr)
 setwd('/Users/htr365/Documents/Side_Projects/13_war_on_drugs/github/')
 source('utils/clean_WHO.R')
 
@@ -35,7 +38,9 @@ df_top10 %>% arrange(year,desc(diff))
 df_top10$cause<-factor(df_top10$cause, levels = rev(c(df19  %>% arrange(desc(deaths)) %>%  slice(1:10) %>% select(cause))$cause))
 
 
-
+################################
+# BARS TWO COLORS PLOT OF CHANGE
+###############################
 p <- df_top10 %>% arrange(year,desc(diff)) %>% ggplot(aes(x=deaths, y = cause, label = round(deaths))) +
 geom_line(aes(group = cause),size=1) +
 geom_point(aes(color = factor(year)),size=2)+
@@ -104,4 +109,83 @@ finalise_plot(p2,
               save_filepath = 'figures/02_year_comparison_dalys_lollipop.png',
               width_pixels =640,
               height_pixels =450)
+
+
+######################
+# TIME SERIES PLOT
+####################
+source('utils/theme.R')
+base_size <- define_base_size()
+colors <- set_colors()
+# calcualte difference
+diff_labels <- df_top10 %>% spread(year,deaths) %>% 
+  group_by(cause) %>% 
+  mutate(diff = (`2019`-`2000`)/`2000`*100) %>% arrange(desc(`2019`))
+
+# pivot wider to match required format
+df_plot <- df_top10 %>% pivot_wider(id_cols=cause, names_from=year, values_from=deaths)
+names(df_plot) <- c('cause','d2000','d2019')
+
+# pick only top 5
+df_plot <- df_plot %>% arrange(desc(d2019))
+df_plot <- df_plot[1:5,]
+
+# create some variables to adjust the positon of the line segment
+df_plot <- df_plot %>% mutate(slope=(d2019-d2000)/19,
+                              positionx=c(2010.5,2014,2010.5,2010.5,2010.5),
+                              positiony =ifelse(cause!=" Drug use disorders",slope*10.5+d2000,
+                                                slope*14+d2000))
+
+
+df_plot %>% ggplot( aes(x=2000,y=d2000, label = cause, col = cause)) +
+  geom_point() + geom_textsegment(aes(xend =2019,yend=d2019), size = 1) 
+
+p3 <-df_plot  %>% ggplot( aes(2000, d2000, xend = 2019, yend = d2019, label = cause, col = cause)) +
+  geom_segment(size = 1)+
+                     #6, aes(label=paste0(round(diff_labels$diff[1:5]),'%')),fontface = 2) +
+  geom_point(aes(x=2000,y=d2000),size=3)+
+  geom_point(aes(x=2019,y=d2019),size=3)+
+  guides(color = "none") +
+  theme(axis.title.x = element_blank()) +
+  geom_text_repel(
+    aes(2019, d2019,label=str_wrap(cause,20)), nudge_x = 0.5, direction = "y", hjust = 0, force=10,
+    segment.size=0.2,
+    fontface = "bold")+
+ geom_richtext(
+  aes( x = positionx, y = positiony ,
+        label = paste0("**",round(diff_labels$diff[1:5]),'%',"**")),
+  label.size = NA,
+    angle = 
+     atan(
+        # slope
+        df_plot$slope[1:5] *
+          # aspect ratio of plot:
+          unit(0, 'npc') %>% grid::convertY('native', valueOnly = T) /
+          unit(1, 'npc') %>% grid::convertX('native', valueOnly = T) /
+          # ratio of y-range to x-range of plot:
+          ( 6000 / 19)
+       * 180 / pi
+  ))+
+  
+  labs(title = "10 most frequent causes of DALYS in the U.S.", 
+       subtitle ="% change in DALYs per 100,000 population from 2000 to 2019",
+       x = "Years",
+       y='DALYs \n(per 100,000 population)')+
+  scale_color_manual(values=colors)+
+  scale_y_continuous(labels=comma, limits=c(1000,10000))+
+  scale_x_continuous(
+    breaks = c(2000,2019), labels = c("2000", "2019"),
+    expand = expansion(mult = c(0.1,0.4))
+  )+ theme_ind2() +theme(panel.grid.major.x=  ggplot2::element_line(color = "#cbcbcb")) 
+
+p3
+
+# save plot
+width=500
+footer <- create_footer('Source: WHO',file.path(system.file("data", package = 'bbplot'),"placeholder.png"))
+plot_grid <- ggpubr::ggarrange(p3, footer,
+                               ncol = 1, nrow = 2,
+                               heights = c(1, 0.045/(width/450)))
+## print(paste("Saving to", save_filepath))
+save_plot(plot_grid, width, 450, 'figures/02_year_comparison_dalys_over_time.png')
 

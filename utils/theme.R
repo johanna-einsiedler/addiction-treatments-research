@@ -12,11 +12,13 @@ define_base_size <- function(size=16){
 
 
 # function to set colors
-set_colors <- function(colors=c("#987284",
-                                "#75b9be",
-                                "#3b5249",
-                                "#d0d6b5",
-                                "#d4b483")){
+set_colors <- function(colors=c('#6EC4B3', '#e49273','#7180ac','#a37a74', '#2b4570')){
+  #colors=c("#987284",
+  #"#75b9be",
+  #"#3b5249",
+  #"#d0d6b5",
+  #"#d4b483")
+
   return (colors)
 }
 
@@ -31,15 +33,15 @@ theme_ind2 <- function (base_size=16, base_family="") {
                           colour = "#222222", size = base_size,
                           hjust = 0.5, vjust = 0.5, angle = 0, 
                           lineheight = 0.9),
-      plot.title = element_text(family = font, size = rel(1.5), face = "bold", color = "#222222",margin = margin(t=10),hjust = 0, 
+      plot.title = element_text(family = font, size = rel(1), face = "bold", color = "#5A5A5A",margin = margin(t=10,b=10),hjust = 0, 
                                 vjust = 1.5, ), # plot title style
-      plot.subtitle = ggplot2::element_text(family = font, face = "bold",size = rel(1), margin = ggplot2::margin(0, 0, 9, 0),hjust=0), # subplot title style
+      plot.subtitle = ggplot2::element_text(family = font, face = "bold",size = rel(.8), color='#5A5A5A',margin = ggplot2::margin(0, 0, 9, 0),hjust=0), # subplot title style
       #plot.caption = ggplot2::element_blank(), # plot caption set to empty per default
       legend.position = "top", legend.text.align = 0, legend.background = ggplot2::element_blank(), # position of legend on the top as default
       #legend.title = ggplot2::element_blank(), legend.key = ggplot2::element_blank(), # legend title remove
-      legend.text = ggplot2::element_text(family = font, size = rel(1), color = "#222222"), # set parameters for legend text
+      legend.text = ggplot2::element_text(family = font, size = rel(1), color = "#5A5A5A"), # set parameters for legend text
       axis.title = ggplot2::element_blank(), # remove axis title per default
-      axis.text = ggplot2::element_text(family = font, size = rel(1), color = "#222222"), 
+      axis.text = ggplot2::element_text(family = font, size = rel(1), color = "#5A5A5A"), 
       axis.text.x = ggplot2::element_text(margin = ggplot2::margin(5, b = 10)), 
       axis.ticks = ggplot2::element_blank(), 
       axis.line = ggplot2::element_blank(), 
@@ -116,7 +118,7 @@ finalise_plot <- function(plot_name,
   
   #Draw your left-aligned grid
   plot_left_aligned <- left_align(plot_name, c("subtitle", "title", "caption"))
-  plot_grid <- ggpubr::ggarrange(plot_left_aligned, footer,
+  plot_grid <- ggpubr::ggarrange(plot_name, footer,
                                  ncol = 1, nrow = 2,
                                  heights = c(1, 0.045/(height_pixels/450)))
   ## print(paste("Saving to", save_filepath))
