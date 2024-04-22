@@ -49,7 +49,8 @@ theme_ind2 <- function (base_size=16, base_family="") {
       #panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"), 
       panel.grid.major.x = ggplot2::element_blank(), 
       panel.background = ggplot2::element_blank(), 
-      strip.background = ggplot2::element_rect(fill = "white"), 
+      strip.background = ggplot2::element_rect(fill = "#FCF6F2"), 
+      plot.background =element_rect(fill='#FCF6F2')
       strip.text = ggplot2::element_text(size = 22, hjust = 0),
       complete=TRUE)
 }
