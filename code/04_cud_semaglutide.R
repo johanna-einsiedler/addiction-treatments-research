@@ -1,4 +1,4 @@
-library(ggplot)
+library(ggplot2)
 library(readxl)
 library(ggpubr)
 library(scales)
@@ -88,7 +88,7 @@ data_d$groups <- factor(data_d$groups, levels=c('Overall','Women','Men'))
 ############# generate 'naked' graph
 
 
-data_d %>% ggplot(aes(x=groups,
+data_a %>% ggplot(aes(x=groups,
                     y=values,
                     fill=treatment)) + 
   scale_fill_manual(values=colors)+
