@@ -22,23 +22,26 @@ source('utils/theme.R')
 base_size <- define_base_size()
 colors <- set_colors()
 
-
+#switch color order
+tmp <- colors[1]
+colors[1] <- colors[2]
+colors[2] <- tmp
 
 data <- data.frame(groups =c('All','All','People with prior history of depression or suidice atempt','People with prior history of depression or suidice atempt'),
-  treatment=c('Treated with Gliptins','Treated with GLP-1RAs','Treated with Gliptins','Treated with GLP-1RAs'),
+  treatment=c('Treated with GLP-1RAs','Treated with Gliptins','Treated with GLP-1RAs','Treated with Gliptins'),
                    sample_size = c(373041,372944,88325,88325),
-                   suicides = c(106,250,68,180))
+                   suicides = c(106,230,68,180))
 
 ############# generate 'naked' graph
 
 
 data %>% ggplot(aes(x=groups,
-                      y=suicides/sample_size,
+                      y=suicides/sample_size*100000,
                       fill=treatment)) + 
   scale_fill_manual(values=colors)+
   geom_bar(stat='identity',position ='dodge',width=.8) + 
   theme_ind2()+
-  ylab("%")+
+  ylab("Suicides per 100k people")+
   scale_x_discrete(labels = function(x) str_wrap(str_replace_all(x, "foo" , " "),
                                         width = 30))+
   theme(plot.title = element_text(hjust = 0.5),
